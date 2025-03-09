@@ -12,8 +12,9 @@
             "program": "vit.py",
             "console": "integratedTerminal",
             "args": [
-                 "predict", 
-                 "-i", "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
+                "train"
+                //  "predict", 
+                //  "-i", "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
             ]
         }
     ]

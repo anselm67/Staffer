@@ -38,7 +38,7 @@ class PadToSize(v2.Transform):
         # Normalizes the image.
         image = (image - image.mean()) / image.std()
         # Thresold the mask to { 0, 1 }.
-        # mask = (mask > 0).to(torch.float32)
+        mask = (mask > 0).to(torch.float32)
         return image.unsqueeze(0), mask
 
 
@@ -88,6 +88,9 @@ class StaffDataset(torch.utils.data.Dataset):
             decode_image(img_path.as_posix()),
             Mask(decode_image(mask_path.as_posix())),
         )
+
+    def pick_one(self) -> tuple[Tensor, Tensor]:
+        return self[random.randint(0, len(self) - 1)]
 
     def stats(self):
         max_width, max_height = 0, 0
