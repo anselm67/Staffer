@@ -14,6 +14,7 @@ import torch
 import torch.nn as nn
 import torchsummary
 from numpy.typing import NDArray
+from torchvision.io import decode_image
 
 from dataset import StaffDataset
 from model import Config, ViT
@@ -164,19 +165,19 @@ def predict(path: Path, model_path: Path, image_path: Optional[Path] = None):
 
     config = Config()
     obj = torch.load(model_path)
-    ds, _ = StaffDataset.create(Path(path), config)
+    _, ds = StaffDataset.create(Path(path), config)
     model = ViT(config)
     model.load_state_dict(obj["state_dict"])
     model.to(device)
 
     if image_path is not None:
-        image = cv2.imread(Path(image_path).as_posix())
-        image = image_transform(image, config)
-        image = (image - image.mean()) / image.std()
-        image = image.unsqueeze(0).to(device)
+        image = decode_image(Path(image_path).as_posix())
+        image, _ = ds.predict_transform(image)
+        image = image.to(device)
 
-        yhat = model(image.unsqueeze(0))
-        staff = (yhat.squeeze(0) > 0.5).to(torch.float32).cpu().numpy()
+        # Un-Squeezes for a batch_size of 1.
+        yhat = model(image.unsqueeze(0)).squeeze(0)
+        staff = (yhat > 0.5).to(torch.float32).cpu().numpy()
 
         cv2.imshow("image", image.squeeze(0).cpu().numpy())
         cv2.imshow("staff", staff)

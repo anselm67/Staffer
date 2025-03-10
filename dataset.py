@@ -1,7 +1,7 @@
 import os
 import random
 from pathlib import Path
-from typing import Literal, Union
+from typing import Optional, Union
 
 import torch
 from torch import Tensor
@@ -22,24 +22,51 @@ class PadToSize(v2.Transform):
 
     def transform(self, tensor: Union[Mask, Tensor]) -> Tensor:
         _, h, w = tensor.shape
-        target_h, target_w = h // self.config.divider, w // self.config.divider
-        tensor = v2.functional.resize(
-            tensor,
-            [target_h, target_w],
-            interpolation=InterpolationMode.NEAREST)
-        pad = torch.full(self.config.image_shape, 0)
-        pad[:target_h, :target_w] = tensor
+        scale = max(
+            h / self.config.image_shape[0], w / self.config.image_shape[1])
+        if scale > 1.0:
+            h, w = int(h / scale), int(w / scale)
+            tensor = v2.functional.resize(
+                tensor, [h, w],
+                interpolation=InterpolationMode.NEAREST
+            )
+        pad = torch.full(self.config.image_shape, 0, dtype=torch.float32)
+        pad[:h, :w] = tensor
         return pad.to(torch.float32)
 
-    def forward(self, image: Tensor, mask: Union[Mask, Tensor]) -> tuple[Tensor, Tensor]:
-        assert image.shape == mask.shape, "Image an mask should have the same shape."
+    def forward(
+        self, image: Tensor, mask: Optional[Union[Mask, Tensor]] = None
+    ) -> tuple[Tensor, Optional[Tensor]]:
+        assert mask is None or image.shape == mask.shape, "Image an mask should have the same shape."
         # Pads and resizes the image and the mask.
-        image, mask = self.transform(image), self.transform(mask)
-        # Normalizes the image.
+        image = self.transform(image)
         image = (image - image.mean()) / image.std()
         # Thresold the mask to { 0, 1 }.
-        mask = (mask > 0).to(torch.float32)
+        if mask is not None:
+            mask = self.transform(mask)
+            mask = (mask > 0).to(torch.float32)
         return image.unsqueeze(0), mask
+
+
+class PredictTransform(v2.Transform):
+
+    def __init__(self, config: Config):
+        super(PredictTransform, self).__init__()
+        self.config = config
+
+    def forward(self, tensor: Tensor) -> Tensor:
+        _, h, w = tensor.shape
+        tensor = 255 - tensor
+        scale = max(
+            h / self.config.max_height, w / self.config.max_width)
+        if scale > 1.0:
+            target_h, target_w = int(h / scale), int(w / scale)
+            tensor = v2.functional.resize(
+                tensor,
+                [target_h, target_w],
+                interpolation=InterpolationMode.NEAREST
+            )
+        return tensor
 
 
 class StaffDataset(torch.utils.data.Dataset):
@@ -49,6 +76,7 @@ class StaffDataset(torch.utils.data.Dataset):
     config: Config
 
     train_transform: v2.Compose
+    predict_transform: v2.Compose
 
     @staticmethod
     def create(
@@ -77,6 +105,11 @@ class StaffDataset(torch.utils.data.Dataset):
         # Inits the transforms.
         self.train_transform = v2.Compose([
             PadToSize(config)
+        ])
+        self.predict_transform = v2.Compose([
+            v2.Grayscale(1),
+            PredictTransform(config),
+            self.train_transform
         ])
 
     def __len__(self) -> int:

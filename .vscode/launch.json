@@ -4,17 +4,27 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-    
         {
-            "name": "Python Debugger: Current File with Arguments",
+            "name": "vit.py",
             "type": "debugpy",
             "request": "launch",
             "program": "vit.py",
             "console": "integratedTerminal",
             "args": [
-                "train"
-                //  "predict", 
+                // "train"
+                 "predict", 
                 //  "-i", "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
+            ]
+        },
+        {
+            "name": "light.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "light.py",
+            "console": "integratedTerminal",
+            "args": [
+                "train"
+                // "predict", "./lightning_logs/version_5/checkpoints/epoch=7-step=2400.ckpt", "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
             ]
         }
     ]
