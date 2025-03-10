@@ -95,7 +95,6 @@ class StaffDataset(torch.utils.data.Dataset):
             staff_dir = img_dir.parent / "gt"
             for img_file in img_dir.iterdir():
                 data.append((img_file, staff_dir / img_file.name))
-        random.shuffle(data)
         train_len = int((1.0 - config.valid_split) * len(data))
         return StaffDataset(config, data[:train_len]), StaffDataset(config, data[train_len:])
 
