@@ -24,8 +24,8 @@
             "console": "integratedTerminal",
             "args": [
                 // "train"
-                "stats",
-                // "test", "./lightning_logs/version_0/checkpoints/epoch=15-step=4800.ckpt" // , "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
+                // "stats",
+                "test", "./lightning_logs/version_0/checkpoints/epoch=15-step=4800.ckpt" // , "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
             ]
         }
     ]
