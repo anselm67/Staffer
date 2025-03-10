@@ -23,8 +23,9 @@
             "program": "light.py",
             "console": "integratedTerminal",
             "args": [
-                "train"
-                // "predict", "./lightning_logs/version_5/checkpoints/epoch=7-step=2400.ckpt", "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
+                // "train"
+                "stats",
+                // "test", "./lightning_logs/version_0/checkpoints/epoch=15-step=4800.ckpt" // , "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
             ]
         }
     ]
