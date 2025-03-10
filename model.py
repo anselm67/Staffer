@@ -1,12 +1,12 @@
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from torch import Tensor, nn, randn
 
 
 @dataclass()
 class Config:
-    image_shape: tuple[int, int]
+    image_shape: tuple[int, int] = field(init=False)
 
     # Maximums as obtained with the "stats" command.
     max_width: int = 3993
@@ -22,14 +22,14 @@ class Config:
     dropout: float = 0.1
     num_layers = 4
 
-    batch_size = 8
-    valid_split: float = 0.2
+    batch_size: int = 8
+    valid_split: float = 0.8
 
     def scale_to_patch(self, value: int) -> int:
         ret = value // self.divider
         return int(round(ret / self.patch_size) * self.patch_size)
 
-    def __init__(self):
+    def __post_init__(self):
         self.image_shape = (
             self.scale_to_patch(self.max_height),
             self.scale_to_patch(self.max_width),
