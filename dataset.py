@@ -96,8 +96,8 @@ class StaffDataset(torch.utils.data.Dataset):
             for img_file in img_dir.iterdir():
                 data.append((img_file, staff_dir / img_file.name))
         random.shuffle(data)
-        split = int(config.valid_split * len(data))
-        return StaffDataset(config, data[:split]), StaffDataset(config, data[split:])
+        train_len = int((1.0 - config.valid_split) * len(data))
+        return StaffDataset(config, data[:train_len]), StaffDataset(config, data[train_len:])
 
     def __init__(self, config: Config, data: list[tuple[Path, Path]]):
         self.config = config
@@ -129,9 +129,9 @@ class StaffDataset(torch.utils.data.Dataset):
         max_width, max_height = 0, 0
         for img_path, staff_path in self.data:
             img = decode_image(img_path.as_posix())
-            h, w = img.shape[:2]
+            h, w = img.shape[-2:]
             max_height, max_width = max(max_height, h), max(max_width, w)
 
             staff = decode_image(staff_path.as_posix())
-            assert staff.shape[0] == h and staff.shape[1] == w, "Image and mask size mismatch!"
+            assert staff.shape[-2:] == img.shape[-2:], "Image and mask size mismatch!"
         print(f"{len(self.data)} images: {max_height=}, {max_width=}")
