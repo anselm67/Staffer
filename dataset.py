@@ -28,8 +28,7 @@ class PadToSize(v2.Transform):
             h, w = int(h / scale), int(w / scale)
             tensor = v2.functional.resize(
                 tensor, [h, w],
-                interpolation=InterpolationMode.BILINEAR,
-                antialias=True
+                interpolation=InterpolationMode.NEAREST,
             )
         pad = torch.full(self.config.image_shape, 0, dtype=torch.float32)
         pad[:h, :w] = tensor
@@ -65,8 +64,7 @@ class PredictTransform(v2.Transform):
             tensor = v2.functional.resize(
                 tensor,
                 [target_h, target_w],
-                interpolation=InterpolationMode.BILINEAR,
-                antialias=True
+                interpolation=InterpolationMode.NEAREST
             )
         return tensor
 
