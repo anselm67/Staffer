@@ -49,15 +49,17 @@ class PatchEmbedding(nn.Module):
             config.image_shape[1] // config.patch_size)
         self.proj = nn.Conv2d(config.in_channels, config.embed_dim,
                               kernel_size=config.patch_size, stride=config.patch_size)
-        self.pos_embed = nn.Parameter(randn(
+        self.pos_embed = nn.Parameter(0.02 * randn(
             self.num_patch[0] * self.num_patch[1], config.embed_dim))
+
+        self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x: Tensor) -> Tensor:
         B = x.shape[0]
         x = self.proj(x)
         x = x.flatten(2).transpose(1, 2)
         x += self.pos_embed
-        return x
+        return self.dropout(x)
 
 
 class TransformerBlock(nn.Module):
