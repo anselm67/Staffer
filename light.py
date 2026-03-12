@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-from dataclasses import replace
+from dataclasses import asdict, replace
+from pathlib import Path
 from typing import cast
 
 import click
@@ -8,6 +9,7 @@ import cv2
 import lightning as L
 import torch
 from torch import Tensor, nn, optim, utils
+from torchvision.io import decode_image
 
 from dataset import StaffDataset
 from model import Config, ViT
@@ -26,6 +28,7 @@ class LitStaffer(L.LightningModule):
 
     def __init__(self, config: Config):
         super().__init__()
+        self.save_hyperparameters(asdict(config))
         self.model = ViT(config)
         self.loss_f = nn.BCEWithLogitsLoss()
 
@@ -103,11 +106,31 @@ def test(checkpoint: str):
         yhats = cast(list[Tensor], trainer.predict(model, [images]))
         for image, yhat, gt in zip(images.unbind(0), yhats, gts):
             precision, recall = accuracy(yhat, gt)
-            print(f"P: {100 * precision:.2f}%, R: {100 * recall:.2f}%")
+            print(
+                f"Precision: {100 * precision:.2f}%, Recall: {100 * recall:.2f}%")
             cv2.imshow("image", image.squeeze(0).cpu().numpy())
             cv2.imshow("staff", yhat.cpu().numpy())
             if cv2.waitKey(0) == ord('q'):
                 return
+
+
+@click.command()
+@click.argument("checkpoint", type=str)
+@click.option("image_path", "-i", type=click.Path(file_okay=True, dir_okay=False, exists=True),
+              required=True)
+def predict(checkpoint, image_path: Path):
+    config = Config()
+    _, ds = StaffDataset.create(config=config)
+
+    model = LitStaffer.load_from_checkpoint(checkpoint, config=config)
+    image = decode_image(Path(image_path).as_posix())
+    image, _ = ds.predict_transform(image)
+    yhat = model.predict_step(image.cuda())
+    staff = (yhat > 0.5).to(torch.float32).cpu().numpy()
+
+    cv2.imshow("Image", image.squeeze(0).cpu().numpy())
+    cv2.imshow("Staff", staff)
+    cv2.waitKey(0)
 
 
 @click.command()
@@ -126,6 +149,7 @@ cli.add_command(train)
 cli.add_command(test)
 cli.add_command(show)
 cli.add_command(stats)
+cli.add_command(predict)
 
 if __name__ == "__main__":
     torch.set_float32_matmul_precision("high")

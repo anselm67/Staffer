@@ -5,15 +5,29 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "vit.py",
+            "name": "vit.py predict",
             "type": "debugpy",
             "request": "launch",
             "program": "vit.py",
             "console": "integratedTerminal",
             "args": [
                 // "train"
-                 "predict", 
-                //  "-i", "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
+                "predict",
+                "-i",
+                "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png"
+            ]
+        },
+        {
+            "name": "light.py predict",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "light.py",
+            "console": "integratedTerminal",
+            "args": [
+                "predict",
+                "./lightning_logs/version_4/checkpoints/epoch=34-step=10500.ckpt",
+                "-i",
+                "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png"
             ]
         },
         {
@@ -25,7 +39,8 @@
             "args": [
                 // "train"
                 // "stats",
-                "test", "./lightning_logs/version_0/checkpoints/epoch=15-step=4800.ckpt" // , "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
+                "test",
+                "./lightning_logs/version_0/checkpoints/epoch=15-step=4800.ckpt" // , "/home/anselm/datasets/kern-sheet/bach/inventions/.pdfcache/inven01-000.png" 
             ]
         }
     ]
