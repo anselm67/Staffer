@@ -6,7 +6,7 @@ from typing import Optional, Union
 import torch
 from torch import Tensor
 from torchvision.io import decode_image
-from torchvision.transforms import InterpolationMode, v2
+from torchvision.transforms import v2
 from torchvision.tv_tensors import Mask
 
 from model import Config
