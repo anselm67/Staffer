@@ -7,6 +7,7 @@ from torchvision.transforms import InterpolationMode
 
 @dataclass()
 class Config:
+    id_name: str = "default"
     image_shape: tuple[int, int] = field(init=False)
 
     # Maximums as obtained with the "stats" command.
@@ -26,8 +27,8 @@ class Config:
     batch_size: int = 8
     valid_split: float = 0.8
 
-    interpolation: InterpolationMode = InterpolationMode.BILINEAR
-    antialias: bool = True
+    interpolation: InterpolationMode = InterpolationMode.NEAREST
+    antialias: bool = False
 
     def scale_to_patch(self, value: int) -> int:
         ret = value // self.divider
