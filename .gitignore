@@ -1,5 +1,4 @@
 *.pyc
 __pycache__/
 
-untracked/
-lightning_logs/
+checkpoints/
