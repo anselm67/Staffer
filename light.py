@@ -9,6 +9,7 @@ import cv2
 import lightning as L
 import torch
 from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.loggers import TensorBoardLogger
 from torch import Tensor, nn, optim, utils
 from torchvision.io import decode_image
 
@@ -105,7 +106,8 @@ def train(name, epochs: int):
 
     staffer = LitStaffer(config)
     trainer = L.Trainer(max_epochs=epochs, limit_val_batches=10,
-                        callbacks=[checkpoint_callback])
+                        callbacks=[checkpoint_callback],
+                        logger=TensorBoardLogger(save_dir=f"./logs/", name=config.id_name, version=""))
     trainer.fit(staffer, train_loader, valid_loader)
 
 
