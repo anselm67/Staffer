@@ -2,6 +2,7 @@
 from dataclasses import dataclass, field
 
 from torch import Tensor, nn, randn
+from torchvision.transforms import InterpolationMode
 
 
 @dataclass()
@@ -24,6 +25,9 @@ class Config:
 
     batch_size: int = 8
     valid_split: float = 0.8
+
+    interpolation: InterpolationMode = InterpolationMode.BILINEAR
+    antialias: bool = True
 
     def scale_to_patch(self, value: int) -> int:
         ret = value // self.divider
@@ -121,4 +125,5 @@ class ViT(nn.Module):
             Wp * self.config.patch_size
         )
 
+        return x
         return x
