@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "click>=8.3.1",
     "lightning>=2.6.1",
+    "matplotlib>=3.10.8",
     "opencv-python>=4.13.0.92",
     "pytorch-lightning>=2.6.1",
     "torch>=2.10.0",
